@@ -1,0 +1,306 @@
+<div class="app-shell">
+  <aside class="sidebar">
+    <a class="brand" href="/" aria-label="SlotBook ana sayfa"
+      ><span class="brand-icon">▦</span>SlotBook<span class="brand-dot"
+        >.</span
+      ></a
+    >
+    <div class="workspace">
+      <span class="avatar">B</span>
+      <div>
+        <strong>Çalışma alanım</strong><small>Takım çalışma alanı</small>
+      </div>
+    </div>
+    <p class="nav-label">ÇALIŞMA ALANI</p>
+    <nav>
+      <a href="/" class="active"
+        ><span>▦</span>Takvim<span class="nav-indicator"></span
+      ></a>
+    </nav>
+    <div class="sidebar-note">
+      <span class="status-dot"></span>Her şey yerli yerinde.<small
+        >Bir sonraki adıma odaklan.</small
+      >
+    </div>
+  </aside>
+  <div class="main">
+    <header class="topbar">
+      <span
+        >Çalışma alanı <span class="crumb">/</span>
+        <strong>Takvim</strong></span
+      ><span class="avatar">HB</span>
+    </header>
+    <main>
+      <div class="page-heading">
+        <div>
+          <p class="eyebrow">ZAMANINA YER AÇ.</p>
+          <h1>Randevu takvimi</h1>
+          <p class="subtitle">
+            Görüşmelere yer aç. Ekibinin zamanını birlikte planla.
+          </p>
+        </div>
+        <button class="primary" (click)="newAppointment()">
+          + Yeni randevu
+        </button>
+      </div>
+      @if (error()) {
+        <div class="alert" role="alert">
+          {{ error()
+          }}<button
+            type="button"
+            class="quiet"
+            (click)="error.set('')"
+            aria-label="Hata bildirimini kapat"
+          >
+            ×
+          </button>
+        </div>
+      }
+      @if (notice()) {
+        <div class="notice" role="status">{{ notice() }}</div>
+      }
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-top">
+            Bu haftaki görüşme<span class="metric-icon">▦</span>
+          </div>
+          <strong>{{ appointments().length }}</strong
+          ><small>Haftanın tüm randevuları</small>
+        </div>
+        <div class="metric">
+          <div class="metric-top">
+            Planlanan<span class="metric-icon">◷</span>
+          </div>
+          <strong>{{ scheduled() }}</strong
+          ><small>Takvimde ayrılmış zamanlar</small>
+        </div>
+        <div class="metric">
+          <div class="metric-top">
+            Tamamlanan<span class="metric-icon">✓</span>
+          </div>
+          <strong>{{ completed() }}</strong
+          ><small>Gerçekleşen görüşmeler</small>
+        </div>
+        <div class="metric">
+          <div class="metric-top">Ekip<span class="metric-icon">♧</span></div>
+          <strong>{{ employees().length }}</strong
+          ><small>Randevu atanabilir çalışan</small>
+        </div>
+      </div>
+      @if (panel() === "employee") {
+        <form class="panel form-panel" (ngSubmit)="saveEmployee()">
+          <div class="form-head">
+            <h2>Ekibe birini ekle</h2>
+            <button type="button" class="quiet" (click)="close()">Kapat</button>
+          </div>
+          <div class="form-grid">
+            <label
+              >Ad soyad<input
+                name="name"
+                [(ngModel)]="employee.name"
+                required
+                maxlength="80" /></label
+            ><label
+              >Unvan<input
+                name="title"
+                [(ngModel)]="employee.title"
+                maxlength="80" /></label
+            ><label
+              >Takvim rengi<input
+                name="color"
+                type="color"
+                [(ngModel)]="employee.color"
+                required
+            /></label>
+          </div>
+          <div class="form-actions">
+            <button class="primary" [disabled]="busy()">Çalışanı ekle</button>
+          </div>
+        </form>
+      }
+      @if (panel() === "appointment") {
+        <form class="panel form-panel" (ngSubmit)="save()">
+          <div class="form-head">
+            <div>
+              <h2>{{ editing ? "Randevu ayrıntıları" : "Yeni randevu" }}</h2>
+              @if (editing) {
+                <span class="badge">{{ editing.status }}</span>
+              }
+            </div>
+            <button type="button" class="quiet" (click)="close()">Kapat</button>
+          </div>
+          <div class="form-grid">
+            <label
+              >Görüşme başlığı<input
+                name="title"
+                [(ngModel)]="form.title"
+                maxlength="120"
+                required /></label
+            ><label
+              >Müşteri<input
+                name="client"
+                [(ngModel)]="form.clientName"
+                maxlength="100"
+                required /></label
+            ><label
+              >E-posta<input
+                type="email"
+                name="email"
+                [(ngModel)]="form.clientEmail"
+                maxlength="200" /></label
+            ><label
+              >Çalışan<select
+                name="employee"
+                [(ngModel)]="form.employeeId"
+                required
+              >
+                @for (e of employees(); track e.id) {
+                  <option [value]="e.id">{{ e.name }}</option>
+                }
+              </select></label
+            ><label
+              >Başlangıç<input
+                name="start"
+                type="datetime-local"
+                [(ngModel)]="form.startAt"
+                required /></label
+            ><label
+              >Bitiş<input
+                name="end"
+                type="datetime-local"
+                [(ngModel)]="form.endAt"
+                required /></label
+            ><label class="span3"
+              >Not<textarea
+                name="note"
+                [(ngModel)]="form.note"
+                maxlength="1500"
+              ></textarea>
+            </label>
+          </div>
+          @if (!editing || editing.status === "SCHEDULED") {
+            <div class="form-actions">
+              <button
+                class="primary"
+                [disabled]="busy() || !employees().length"
+              >
+                Kaydet
+              </button>
+              @if (editing) {
+                <button
+                  type="button"
+                  class="secondary"
+                  (click)="status('COMPLETED')"
+                  [disabled]="busy()"
+                >
+                  Tamamlandı</button
+                ><button
+                  type="button"
+                  class="quiet danger"
+                  (click)="status('CANCELLED')"
+                  [disabled]="busy()"
+                >
+                  İptal et
+                </button>
+              }
+            </div>
+          }
+        </form>
+      }
+      <section class="panel">
+        <div class="toolbar">
+          <button class="quiet" aria-label="Önceki hafta" (click)="week(-1)">
+            ‹</button
+          ><span class="period"
+            >{{ date(days()[0].toISOString()) }} –
+            {{ date(days()[6].toISOString()) }}</span
+          ><button class="quiet" aria-label="Sonraki hafta" (click)="week(1)">
+            ›</button
+          ><button class="secondary" (click)="today()">Bugün</button
+          ><span class="spacer"></span
+          ><button class="secondary" (click)="panel.set('employee')">
+            + Çalışan
+          </button>
+        </div>
+        <div class="toolbar">
+          <input
+            class="search"
+            aria-label="Randevu ara"
+            placeholder="Randevu veya müşteri ara…"
+            [ngModel]="query()"
+            (ngModelChange)="query.set($event)"
+          /><select
+            aria-label="Çalışan filtresi"
+            [ngModel]="employeeFilter()"
+            (ngModelChange)="employeeFilter.set($event)"
+          >
+            <option value="">Tüm çalışanlar</option>
+            @for (e of employees(); track e.id) {
+              <option [value]="e.id">{{ e.name }}</option>
+            }</select
+          ><select
+            aria-label="Durum filtresi"
+            [ngModel]="statusFilter()"
+            (ngModelChange)="statusFilter.set($event)"
+          >
+            <option value="">Tüm durumlar</option>
+            <option value="SCHEDULED">Planlandı</option>
+            <option value="COMPLETED">Tamamlandı</option>
+            <option value="CANCELLED">İptal edildi</option>
+          </select>
+        </div>
+        <div class="table-wrap">
+          <div class="week">
+            @for (day of days(); track day.toISOString()) {
+              <section class="week-day">
+                <div class="day-head" [class.today]="isToday(day)">
+                  {{ dayName(day) }}<strong>{{ day.getDate() }}</strong>
+                </div>
+                @for (a of onDay(day); track a.id) {
+                  <button
+                    class="appointment"
+                    [class.CANCELLED]="a.status === 'CANCELLED'"
+                    [style.border-left-color]="color(a.employeeId)"
+                    (click)="edit(a)"
+                  >
+                    <small>{{ time(a.startAt) }} – {{ time(a.endAt) }}</small
+                    ><strong>{{ a.title }}</strong>
+                    <div class="client">{{ a.clientName }}</div>
+                    <div class="card-meta">
+                      {{ employeeName(a.employeeId)
+                      }}<span>{{
+                        a.status === "COMPLETED"
+                          ? "✓"
+                          : a.status === "CANCELLED"
+                            ? "×"
+                            : ""
+                      }}</span>
+                    </div>
+                  </button>
+                }
+                <button
+                  class="add-card"
+                  [attr.aria-label]="
+                    date(day.toISOString()) + ' için randevu ekle'
+                  "
+                  (click)="newAppointment(day)"
+                >
+                  +
+                </button>
+              </section>
+            }
+          </div>
+        </div>
+        <div class="toolbar">
+          <span class="help"
+            >Saatler cihazının yerel saat diliminde gösterilir. Ayrıntılar için
+            bir görüşmeyi aç.</span
+          >
+        </div>
+      </section>
+      <footer>
+        <strong>SlotBook.</strong><span>Detayları düzenle. Akışa odaklan.</span>
+      </footer>
+    </main>
+  </div>
+</div>
