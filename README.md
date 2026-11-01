@@ -8,6 +8,10 @@ Zamanına yer aç. Ekibin için haftalık randevu takvimi.
 
 [Telefon görünümü](docs/mobile.png)
 
+## Arayüz
+
+**Angular Material** · Mavi ve gri tonlar, üst gezinme ve geniş haftalık takvim. Tema sınırları ve doğrulama notları: [Arayüz sistemi](docs/ui.md).
+
 ## Özellikler
 
 - Haftalık takvim, hafta gezinme ve çalışan bazında renkler
