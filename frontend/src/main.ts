@@ -1,3 +1,7 @@
+import { MatButtonModule } from "@angular/material/button";
+import { MatInputModule } from "@angular/material/input";
+import { MatFormFieldModule } from "@angular/material/form-field";
+import { MatCardModule } from "@angular/material/card";
 import {
   Component,
   signal,
@@ -51,7 +55,14 @@ interface Appointment extends Entity {
 @Component({
   selector: "app-root",
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [
+    CommonModule,
+    FormsModule,
+    MatButtonModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatCardModule,
+  ],
   templateUrl: "./app.html",
   host: { "(document:keydown.escape)": "close()" },
 })
